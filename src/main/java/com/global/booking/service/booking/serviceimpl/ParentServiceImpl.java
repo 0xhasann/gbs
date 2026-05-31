@@ -93,7 +93,7 @@ public class ParentServiceImpl implements ParentService {
         }
 
         @Override
-        @Transactional(readOnly = true)
+        @Transactional
         public BookingResponse bookOffering(
                         BookOfferingRequest request,
                         String idempotencyKey) {
