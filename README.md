@@ -4,7 +4,7 @@ Backend service for managing course offerings, sessions, and bookings for a live
 
 ## Tech Stack
 
-- Java 21
+- Java 17
 - Spring Boot 3
 - Spring Data JPA
 - MySQL
@@ -42,6 +42,39 @@ http://localhost:8080/api
 ```
 
 ## API Testing
+
+## OpenAPI / Swagger Integration
+
+Interactive API documentation for this Spring Boot application, powered by [springdoc-openapi](https://springdoc.org/).
+
+---
+
+## Accessing the Docs
+
+Once the application is running, the following endpoints are available:
+
+| URL                                         | Description                                            |
+| ------------------------------------------- | ------------------------------------------------------ |
+| `http://localhost:8080/api/swagger-ui.html` | Interactive Swagger UI — browse and test all endpoints |
+| `http://localhost:8080/api/v3/api-docs`     | Raw OpenAPI specification in JSON format               |
+
+---
+
+## Running the Application
+
+```bash
+# Build and run
+mvn clean package
+mvn spring-boot:run
+```
+
+Then open your browser and navigate to:
+
+```
+http://localhost:8080/api/swagger-ui.html
+```
+
+## Or
 
 Postman collection is available under:
 
