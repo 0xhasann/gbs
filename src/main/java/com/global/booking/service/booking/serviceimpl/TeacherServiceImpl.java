@@ -28,107 +28,107 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TeacherServiceImpl implements TeacherService {
 
-    private final CourseRepository courseRepository;
-    private final TeacherRepository teacherRepository;
-    private final OfferingRepository offeringRepository;
-    private final SessionRepository sessionRepository;
+        private final CourseRepository courseRepository;
+        private final TeacherRepository teacherRepository;
+        private final OfferingRepository offeringRepository;
+        private final SessionRepository sessionRepository;
 
-    @Override
-    public OfferingResponse createOffering(
-            CreateOfferingRequest request) {
+        @Override
+        public OfferingResponse createOffering(
+                        CreateOfferingRequest request) {
 
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Course not found"));
+                Course course = courseRepository.findById(request.getCourseId())
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Course not found"));
 
-        Teacher teacher = teacherRepository.findById(request.getTeacherId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Teacher not found"));
+                Teacher teacher = teacherRepository.findById(request.getTeacherId())
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Teacher not found"));
 
-        Offering offering = new Offering();
+                Offering offering = new Offering();
 
-        offering.setName(request.getName());
-        offering.setCourse(course);
-        offering.setTeacher(teacher);
+                offering.setName(request.getName());
+                offering.setCourse(course);
+                offering.setTeacher(teacher);
 
-        offeringRepository.save(offering);
+                offeringRepository.save(offering);
 
-        return OfferingResponse.builder()
-                .offeringId(offering.getId())
-                .offeringName(offering.getName())
-                .courseId(course.getId())
-                .courseName(course.getName())
-                .teacherId(teacher.getId())
-                .teacherName(teacher.getName())
-                .build();
-    }
-
-    @Override
-    public SessionResponse addSession(
-            AddSessionRequest request) {
-
-        Offering offering = offeringRepository.findById(
-                request.getOfferingId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Offering not found"));
-
-        if (request.getEndTime()
-                .isBefore(request.getStartTime())) {
-
-            throw new IllegalArgumentException(
-                    "End time must be after start time");
+                return OfferingResponse.builder()
+                                .offeringId(offering.getId())
+                                .offeringName(offering.getName())
+                                .courseId(course.getId())
+                                .courseName(course.getName())
+                                .teacherId(teacher.getId())
+                                .teacherName(teacher.getName())
+                                .build();
         }
 
-        ZoneId teacherZone = ZoneId.of(request.getTimezone());
+        @Override
+        public SessionResponse addSession(
+                        AddSessionRequest request) {
 
-        var startUtc = request.getStartTime()
-                .atZone(teacherZone)
-                .withZoneSameInstant(
-                        ZoneOffset.UTC)
-                .toLocalDateTime();
+                Offering offering = offeringRepository.findById(
+                                request.getOfferingId())
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Offering not found"));
 
-        var endUtc = request.getEndTime()
-                .atZone(teacherZone)
-                .withZoneSameInstant(
-                        ZoneOffset.UTC)
-                .toLocalDateTime();
+                if (request.getEndTime()
+                                .isBefore(request.getStartTime())) {
 
-        Session session = new Session();
+                        throw new IllegalArgumentException(
+                                        "End time must be after start time");
+                }
 
-        session.setOffering(offering);
-        session.setStartTimeUtc(startUtc);
-        session.setEndTimeUtc(endUtc);
+                ZoneId teacherZone = ZoneId.of(request.getTimezone());
 
-        sessionRepository.save(session);
+                var startUtc = request.getStartTime()
+                                .atZone(teacherZone)
+                                .withZoneSameInstant(
+                                                ZoneOffset.UTC)
+                                .toLocalDateTime();
 
-        return SessionResponse.builder()
-                .sessionId(session.getId())
-                .startTime(startUtc.toString())
-                .endTime(endUtc.toString())
-                .build();
-    }
+                var endUtc = request.getEndTime()
+                                .atZone(teacherZone)
+                                .withZoneSameInstant(
+                                                ZoneOffset.UTC)
+                                .toLocalDateTime();
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<OfferingResponse> getTeacherOfferings(
-            Long teacherId) {
+                Session session = new Session();
 
-        return offeringRepository
-                .findByTeacherId(teacherId)
-                .stream()
-                .map(offering -> OfferingResponse.builder()
-                        .offeringId(offering.getId())
-                        .offeringName(offering.getName())
-                        .courseId(
-                                offering.getCourse().getId())
-                        .courseName(
-                                offering.getCourse().getName())
-                        .teacherId(
-                                offering.getTeacher().getId())
-                        .teacherName(
-                                offering.getTeacher().getName())
-                        .build())
-                .toList();
-    }
+                session.setOffering(offering);
+                session.setStartTimeUtc(startUtc);
+                session.setEndTimeUtc(endUtc);
+
+                sessionRepository.save(session);
+
+                return SessionResponse.builder()
+                                .sessionId(session.getId())
+                                .startTime(startUtc.toString())
+                                .endTime(endUtc.toString())
+                                .build();
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<OfferingResponse> getTeacherOfferings(
+                        Long teacherId) {
+
+                return offeringRepository
+                                .findByTeacherId(teacherId)
+                                .stream()
+                                .map(offering -> OfferingResponse.builder()
+                                                .offeringId(offering.getId())
+                                                .offeringName(offering.getName())
+                                                .courseId(
+                                                                offering.getCourse().getId())
+                                                .courseName(
+                                                                offering.getCourse().getName())
+                                                .teacherId(
+                                                                offering.getTeacher().getId())
+                                                .teacherName(
+                                                                offering.getTeacher().getName())
+                                                .build())
+                                .toList();
+        }
 
 }

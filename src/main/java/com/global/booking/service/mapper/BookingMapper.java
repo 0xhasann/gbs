@@ -3,53 +3,33 @@ package com.global.booking.service.mapper;
 import org.springframework.stereotype.Component;
 
 import com.global.booking.service.booking.entity.Booking;
-import com.global.booking.service.booking.entity.Session;
 import com.global.booking.service.dto.response.ParentBookingViewResponse;
-import com.global.booking.service.dto.response.SessionResponse;
 
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class BookingMapper {
 
-    public ParentBookingViewResponse toResponse(
-            Booking booking,
-            String timezone) {
+        private final TimeZoneMapper timeZoneMapper;
 
-        return ParentBookingViewResponse.builder()
-                .bookingId(booking.getId())
-                .offeringName(
-                        booking.getOffering().getName())
-                .sessions(
-                        booking.getOffering()
-                                .getSessions()
-                                .stream()
-                                .map(session -> mapSession(
-                                        session,
-                                        timezone))
-                                .toList())
-                .build();
-    }
+        public ParentBookingViewResponse toResponse(
+                        Booking booking,
+                        String timezone) {
 
-    private SessionResponse mapSession(
-            Session session,
-            String timezone) {
+                return ParentBookingViewResponse.builder()
+                                .bookingId(booking.getId())
+                                .offeringName(
+                                                booking.getOffering().getName())
+                                .sessions(
+                                                booking.getOffering()
+                                                                .getSessions()
+                                                                .stream()
+                                                                .map(session -> timeZoneMapper.mapSession(
+                                                                                session,
+                                                                                timezone))
+                                                                .toList())
+                                .build();
+        }
 
-        var start = session.getStartTimeUtc()
-                .atZone(ZoneOffset.UTC)
-                .withZoneSameInstant(
-                        ZoneId.of(timezone));
-
-        var end = session.getEndTimeUtc()
-                .atZone(ZoneOffset.UTC)
-                .withZoneSameInstant(
-                        ZoneId.of(timezone));
-
-        return SessionResponse.builder()
-                .sessionId(session.getId())
-                .startTime(start.toString())
-                .endTime(end.toString())
-                .build();
-    }
 }

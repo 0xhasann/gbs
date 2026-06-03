@@ -1,8 +1,6 @@
 
 package com.global.booking.service.booking.serviceimpl;
 
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -21,13 +19,12 @@ import com.global.booking.service.dto.request.BookOfferingRequest;
 import com.global.booking.service.dto.response.BookingResponse;
 import com.global.booking.service.dto.response.OfferingResponse;
 import com.global.booking.service.dto.response.ParentBookingViewResponse;
-import com.global.booking.service.dto.response.SessionResponse;
 import com.global.booking.service.mapper.BookingMapper;
+import com.global.booking.service.mapper.TimeZoneMapper;
 import com.global.booking.service.repository.BookingRepository;
 import com.global.booking.service.repository.IdempotencyRepository;
 import com.global.booking.service.repository.OfferingRepository;
 import com.global.booking.service.repository.ParentRepository;
-import com.global.booking.service.repository.SessionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,31 +34,10 @@ public class ParentServiceImpl implements ParentService {
 
         private final ParentRepository parentRepository;
         private final OfferingRepository offeringRepository;
-        private final SessionRepository addSessionsessionRepository;
         private final BookingRepository bookingRepository;
         private final IdempotencyRepository idempotencyRepository;
         private final BookingMapper bookingMapper;
-
-        private SessionResponse mapSession(
-                        Session session,
-                        String timezone) {
-
-                ZoneId parentZone = ZoneId.of(timezone);
-
-                var start = session.getStartTimeUtc()
-                                .atZone(ZoneOffset.UTC)
-                                .withZoneSameInstant(parentZone);
-
-                var end = session.getEndTimeUtc()
-                                .atZone(ZoneOffset.UTC)
-                                .withZoneSameInstant(parentZone);
-
-                return SessionResponse.builder()
-                                .sessionId(session.getId())
-                                .startTime(start.toString())
-                                .endTime(end.toString())
-                                .build();
-        }
+        private final TimeZoneMapper timeZoneMapper;
 
         @Override
         @Transactional(readOnly = true)
@@ -84,9 +60,10 @@ public class ParentServiceImpl implements ParentService {
                                                 .sessions(
                                                                 offering.getSessions()
                                                                                 .stream()
-                                                                                .map(session -> mapSession(
-                                                                                                session,
-                                                                                                timezone))
+                                                                                .map(session -> timeZoneMapper
+                                                                                                .mapSession(
+                                                                                                                session,
+                                                                                                                timezone))
                                                                                 .toList())
                                                 .build())
                                 .toList();
