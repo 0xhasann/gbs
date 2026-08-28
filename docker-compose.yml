@@ -3,7 +3,7 @@ services:
     image: mysql:8.0
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_ROOT_PASSWORD: ${PASSWORD}
       MYSQL_DATABASE: booking_db
     ports:
       - "3306:3306"
@@ -16,8 +16,8 @@ services:
           "-h",
           "localhost",
           "-u",
-          "root",
-          "-pP@ssw0rd",
+          "${USERNAME}",
+          "-p${PASSWORD}",
         ]
       interval: 10s
       timeout: 5s
@@ -82,7 +82,7 @@ services:
   filebeat:
     image: docker.elastic.co/beats/filebeat:9.4.2
     container_name: filebeat
-    user: root
+    user: ${USERNAME}
     depends_on:
       - logstash
     volumes:
