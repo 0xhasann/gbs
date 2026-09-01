@@ -71,7 +71,7 @@ Import the collection into Postman and execute the available requests.
 ## Project Structure
 
 ```text
-src/main/java/com/assignment/booking
+src/main/java/com/global/booking/service
 
 ├── controller
 ├── service
